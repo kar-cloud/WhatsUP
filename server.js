@@ -17,11 +17,24 @@ var io = require("socket.io")(http, {
 
 app.use(express.json());
 app.use(express.static("public"));
+
 app.use(cookieParser());
 
-const userDB = {mongoose.connection code}
+const userDB = mongoose.createConnection(
+  `mongodb+srv://${process.env.MONGODB_AUTH1}@cluster0.5rsnb.mongodb.net/userDB?retryWrites=true&w=majority`,
+  {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  }
+);
 
-const roomDB = {mongoose.connection code}
+const roomDB = mongoose.createConnection(
+  `mongodb+srv://${process.env.MONGODB_AUTH2}@cluster0.7kkhg.mongodb.net/roomDB?retryWrites=true&w=majority`,
+  {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  }
+);
 
 const userSchema = new mongoose.Schema({
   username: String,
@@ -39,6 +52,7 @@ const roomSchema = new mongoose.Schema({
 const User = userDB.model("User", userSchema);
 const Room = roomDB.model("Room", roomSchema);
 
+// io.set("transports", ["websocket"]);
 io.on("connection", (socket) => {
   console.log(socket.id + " ==== connected");
   socket.emit("your id", socket.id);
@@ -480,6 +494,10 @@ app.get("/api/register", auth, (req, res) => {
     res.json({ authorizedMessage: "You are authenticated" });
   }
 });
+
+// app.get("/*", (req, res) => {
+//   res.sendFile(path.join(__dirname, "build", "index.html"));
+// });
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static("client/build"));
