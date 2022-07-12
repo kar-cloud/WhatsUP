@@ -1,5 +1,5 @@
-import { React, useState, useEffect, useRef } from "react";
-import { Modal, Button, Col, Row } from "react-bootstrap";
+import { React, useState, useEffect } from "react";
+import { Modal } from "react-bootstrap";
 import MyRequests from "./MyRequests";
 import OpenConversation from "./OpenConversation";
 import axios from "axios";
@@ -17,11 +17,9 @@ function PrivateChat(props) {
   const [friends, setFriends] = useState([]);
   const [requestsPending, setRequestsPending] = useState([]);
   const [chatWithFriend, setChatWithFriend] = useState();
-  const [yourID, setyourID] = useState();
   const [room, setRoom] = useState("");
   const [message, setMessage] = useState({
     body: "",
-    id: "",
     sentBy: "",
   });
   const [sock, setSock] = useState();
@@ -32,6 +30,8 @@ function PrivateChat(props) {
     if (room) {
       getMessages(room);
     }
+    getRequests();
+    getFriends();
   }, []);
 
   function getMessages(room) {
@@ -54,10 +54,6 @@ function PrivateChat(props) {
     }
   }
 
-  useEffect(() => {
-    getRequests();
-  }, []);
-
   const getRequests = () => {
     axios
       .get("/api/myRequests")
@@ -69,10 +65,6 @@ function PrivateChat(props) {
         console.log(err);
       });
   };
-
-  useEffect(() => {
-    getFriends();
-  }, []);
 
   const getFriends = () => {
     axios
@@ -116,12 +108,10 @@ function PrivateChat(props) {
         .then((response) => {
           if (response.data.requestError) {
             setFriendRequest(response.data.requestError);
-            setShowAfterRequest(true);
-          }
-          if (response.data.requestSuccess) {
+          } else if (response.data.requestSuccess) {
             setFriendRequest(response.data.requestSuccess);
-            setShowAfterRequest(true);
           }
+          setShowAfterRequest(true);
         })
         .catch((err) => {
           console.log(err);
@@ -168,9 +158,6 @@ function PrivateChat(props) {
       getMessages(room);
       setRoom(room);
     });
-    socket.on("your id", (id) => {
-      setyourID(id);
-    });
     socket.on("onMessage", (msg) => {
       setMessagesFromRoom((prevMessages) => {
         return [...prevMessages, msg];
@@ -178,7 +165,7 @@ function PrivateChat(props) {
     });
   }
 
-  function sendMessage(event) {
+  async function sendMessage(event) {
     event.preventDefault();
     const messageObject = {
       body: message,
@@ -190,17 +177,10 @@ function PrivateChat(props) {
     setMessagesFromRoom((prevMessages) => {
       return [...prevMessages, message];
     });
-    axios
-      .post("/api/roomChat", { message, roomID })
-      .then((response) => {
-        console.log(response);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    await axios.post("/api/roomChat", { message, roomID });
+
     setMessage({
       body: "",
-      id: yourID,
       sentBy: "",
     });
     sock.emit("emitMessage", messageObject);
@@ -209,7 +189,6 @@ function PrivateChat(props) {
   function handleChange(event) {
     setMessage({
       body: event.target.value,
-      id: yourID,
       sentBy: props.currentUser,
     });
   }
@@ -370,7 +349,6 @@ function PrivateChat(props) {
                         <OpenConversation
                           key={index}
                           message={message}
-                          id={yourID}
                           friend={chatWithFriend}
                         />
                       );
@@ -472,68 +450,6 @@ function PrivateChat(props) {
                   </>
                 )}
               </div>
-              {/* <div>
-                <Modal
-                  id="modalFriendRequest"
-                  show={showModal}
-                  onHide={handleHideModal}
-                >
-                  <Modal.Body id="modalBodyRequest">
-                    <div>
-                      <h1 className="modalFriendRequest">
-                        Send Friend Request
-                      </h1>
-                      <ClearIcon
-                        id="modalFriendRequestCloseButton"
-                        onClick={handleHideModal}
-                        style={{ cursor: "pointer" }}
-                      />
-                    </div>
-                    <form onSubmit={handleSubmitModal}>
-                      <div className="form-group">
-                        <label
-                          className="modalFriendRequestLabel"
-                          htmlFor="username"
-                        >
-                          Enter Friend's Username
-                        </label>
-                        <input
-                          type="text"
-                          className="modalFriendRequestInput globalChatTextarea"
-                          name="username"
-                          onChange={handleChangeUsernameContact}
-                          size="25"
-                          required
-                        ></input>
-                      </div>
-                      <button
-                        type="submit"
-                        className="modalFriendRequestButton globalChatSendButton"
-                      >
-                        <p className="globalChatSendButtonText">
-                          Send Request{" "}
-                        </p>
-                      </button>
-                    </form>
-                  </Modal.Body>
-                </Modal>
-                <Modal
-                  id="modalFriendRequestAfter"
-                  show={showAfterRequest}
-                  onHide={handleHideModalAfterRequest}
-                >
-                  <Modal.Body>
-                    <div>
-                      <p className="modalFriendRequestSent">{friendRequest}</p>
-                      <ClearIcon
-                        id="modalFriendRequestCloseButton"
-                        onClick={handleHideModalAfterRequest}
-                        style={{ cursor: "pointer" }}
-                      />
-                    </div>
-                  </Modal.Body>
-                </Modal>
-              </div> */}
             </div>
           </div>
         ) : (
@@ -561,7 +477,6 @@ function PrivateChat(props) {
                         <OpenConversation
                           key={index}
                           message={message}
-                          id={yourID}
                           friend={chatWithFriend}
                         />
                       );

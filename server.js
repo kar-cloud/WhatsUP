@@ -52,7 +52,6 @@ const roomSchema = new mongoose.Schema({
 const User = userDB.model("User", userSchema);
 const Room = roomDB.model("Room", roomSchema);
 
-// io.set("transports", ["websocket"]);
 io.on("connection", (socket) => {
   console.log(socket.id + " ==== connected");
   socket.emit("your id", socket.id);
@@ -61,6 +60,7 @@ io.on("connection", (socket) => {
     socket.join("global");
     socket.on("emitGlobalMessage", (data) => {
       const message = data;
+      console.log(socket.rooms);
       console.log(Array.from(socket.rooms));
       Array.from(socket.rooms)
         .filter((it) => it !== socket.id)
@@ -77,6 +77,7 @@ io.on("connection", (socket) => {
 
     let updatedRoomName = `${unique[0]}--with--${unique[1]}`; // 'username1--with--username2'
 
+    console.log(updatedRoomName);
     Array.from(socket.rooms)
       .filter((it) => it !== socket.id)
       .forEach((id) => {
@@ -87,7 +88,6 @@ io.on("connection", (socket) => {
     socket.emit("your room", updatedRoomName);
     socket.on("emitMessage", (data) => {
       const message = data.body;
-      const room = data.room;
       Array.from(socket.rooms)
         .filter((it) => it !== socket.id)
         .forEach((id) => {
@@ -219,7 +219,7 @@ app.post("/api/register", (req, res) => {
         });
         const savedUser = await newUser.save();
 
-        // signing a token
+        // signing a token for authorization
         const token = jwt.sign(
           {
             user: savedUser._id,
@@ -301,35 +301,18 @@ app.get("/api/logout", (req, res) => {
 app.get("/api/home", auth, (req, res) => {
   if (!req.isVerified) {
     console.log("not authenticated from home page");
-    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
-    res.setHeader("Pragma", "no-cache"); // HTTP 1.0.
-    res.setHeader("Expires", "0"); // Proxies.
-    // res.setHeader("Cache-Control", "no-cache, no-store");
     res.json({ unauthorizedMessage: "You are unauthorized" });
   } else {
     console.log("user is authenticated with the cookie");
-    // res.setHeader("Cache-Control", "no-cache, no-store");
-    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
-    res.setHeader("Pragma", "no-cache"); // HTTP 1.0.
-    res.setHeader("Expires", "0"); // Proxies.
     res.json({ authorizedMessage: "You are authenticated from home page" });
   }
 });
 
 app.get("/api/chatroom", auth, (req, res) => {
   if (!req.isVerified) {
-    console.log("not authenticated from chatroom page");
-    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
-    res.setHeader("Pragma", "no-cache"); // HTTP 1.0.
-    res.setHeader("Expires", "0"); // Proxies.
-    // res.setHeader("Cache-Control", "no-cache, no-store");
     res.json({ unauthorizedMessage: "You are unauthorized" });
   } else {
     console.log("user is authenticated with the cookie from chatroom page");
-    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
-    res.setHeader("Pragma", "no-cache"); // HTTP 1.0.
-    res.setHeader("Expires", "0"); // Proxies.
-    // res.setHeader("Cache-Control", "no-cache, no-store");
     res.json({
       authorizedMessage: "You are authenticated",
       username: req.usernameCookie,
@@ -387,7 +370,7 @@ app.post("/api/addFriend", auth, async (req, res) => {
       { username: req.usernameCookie },
       {
         $pull: {
-          recievedRequests: { $in: [friend] },
+          // recievedRequests: { $in: [friend] },
           sendRequests: { $in: [friend] },
         },
         $push: { friends: friend },
@@ -397,7 +380,7 @@ app.post("/api/addFriend", auth, async (req, res) => {
       { username: friend },
       {
         $pull: {
-          sendRequests: { $in: [req.usernameCookie] },
+          // sendRequests: { $in: [req.usernameCookie] },
           recievedRequests: { $in: [req.usernameCookie] },
         },
         $push: { friends: req.usernameCookie },
@@ -417,7 +400,7 @@ app.post("/api/rejectFriend", auth, async (req, res) => {
       {
         $pull: {
           recievedRequests: { $in: [friend] },
-          sendRequests: { $in: [friend] },
+          // sendRequests: { $in: [friend] },
         },
       }
     );
@@ -426,7 +409,7 @@ app.post("/api/rejectFriend", auth, async (req, res) => {
       {
         $pull: {
           sendRequests: { $in: [req.usernameCookie] },
-          recievedRequests: { $in: [req.usernameCookie] },
+          // recievedRequests: { $in: [req.usernameCookie] },
         },
       }
     );
@@ -462,17 +445,9 @@ app.get("/api/myFriends", auth, async (req, res) => {
 app.get("/api/login", auth, (req, res) => {
   if (!req.isVerified) {
     console.log("not authenticated from login page");
-    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
-    res.setHeader("Pragma", "no-cache"); // HTTP 1.0.
-    res.setHeader("Expires", "0"); // Proxies.
-    // res.setHeader("Cache-Control", "no-cache, no-store");
     res.json({ unauthorizedMessage: "You are unauthorized" });
   } else {
     console.log("user is authenticated with the cookie from login page");
-    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
-    res.setHeader("Pragma", "no-cache"); // HTTP 1.0.
-    res.setHeader("Expires", "0"); // Proxies.
-    // res.setHeader("Cache-Control", "no-cache, no-store");
     res.json({ authorizedMessage: "You are authenticated " });
   }
 });
@@ -480,24 +455,12 @@ app.get("/api/login", auth, (req, res) => {
 app.get("/api/register", auth, (req, res) => {
   if (!req.isVerified) {
     console.log("not authenticated from register page");
-    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
-    res.setHeader("Pragma", "no-cache"); // HTTP 1.0.
-    res.setHeader("Expires", "0"); // Proxies.
-    // res.setHeader("Cache-Control", "no-cache, no-store");
     res.json({ unauthorizedMessage: "You are unauthorized" });
   } else {
     console.log("user is authenticated with the cookie from register page");
-    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
-    res.setHeader("Pragma", "no-cache"); // HTTP 1.0.
-    res.setHeader("Expires", "0"); // Proxies.
-    // res.setHeader("Cache-Control", "no-cache, no-store");
     res.json({ authorizedMessage: "You are authenticated" });
   }
 });
-
-// app.get("/*", (req, res) => {
-//   res.sendFile(path.join(__dirname, "build", "index.html"));
-// });
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static("client/build"));

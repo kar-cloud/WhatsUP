@@ -11,8 +11,8 @@ import axios from "axios";
 function App() {
   const [auth, setAuth] = useState(false);
   const [currentUser, setCurrentUser] = useState();
-  // to check if user is verified or not
 
+  // to check if user is verified or not
   if (window.location.pathname === "/") {
     axios.get("/api/home").then((response) => {
       if (response.data.authorizedMessage) {
@@ -33,7 +33,6 @@ function App() {
       if (response.data.authorizedMessage) {
         if (auth === false) {
           setAuth(true);
-          // console.log(response.data.username);
           setCurrentUser(response.data.username);
         }
       }
@@ -79,11 +78,6 @@ function App() {
     response === "User is verified" ? setAuth(true) : setAuth(false);
   }
 
-  function currentWorkingUser(user) {
-    // console.log(user);
-    // setCurrentUser(user);
-  }
-
   return (
     <Fragment>
       <BrowserRouter>
@@ -102,10 +96,7 @@ function App() {
             {auth ? (
               <Redirect to="/chatroom" />
             ) : (
-              <Login
-                getResponseFromLogin={getResponseFromLogin}
-                currentWorkingUser={currentWorkingUser}
-              />
+              <Login getResponseFromLogin={getResponseFromLogin} />
             )}
           </Route>
           <Route path="/logout">

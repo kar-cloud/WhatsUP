@@ -4,7 +4,6 @@ import axios from "axios";
 import socketIOClient from "socket.io-client";
 import SendRoundedIcon from "@material-ui/icons/SendRounded";
 const ENDPOINT = "/";
-var point;
 
 function GlobalChat(props) {
   const [globalMessages, setGlobalMessages] = useState([]);
@@ -13,13 +12,6 @@ function GlobalChat(props) {
     sentBy: "",
   });
   const [sock, setSock] = useState();
-  const [open, setOpen] = useState(false);
-  const [count, setCount] = useState(0);
-  const [phoneShowChat, setPhoneShowChat] = useState(true);
-
-  useEffect(() => {
-    getChats();
-  }, [count]);
 
   async function getChats() {
     await axios
@@ -41,23 +33,11 @@ function GlobalChat(props) {
   }
 
   function openGlobalChat() {
-    setCount(count + 1);
-    setOpen(true);
-    setPhoneShowChat(false);
     props.handleShow();
     if (sock) {
       sock.emit("forceDisconnect");
     }
-    axios
-      .get("/api/globalChats")
-      .then((response) => {
-        if (response.data) {
-          setGlobalMessages(response.data.messages);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    getChats();
     const socket = socketIOClient(ENDPOINT);
     setSock(socket);
     socket.emit("globalChat");
@@ -69,18 +49,13 @@ function GlobalChat(props) {
     });
   }
 
-  function sendGlobalMessage(event) {
+  async function sendGlobalMessage(event) {
     event.preventDefault();
     sock.emit("emitGlobalMessage", globalMessage);
     setGlobalMessages((prevMessages) => {
       return [...prevMessages, globalMessage];
     });
-    axios
-      .post("/api/globalChats", { globalMessage })
-      .then((response) => {})
-      .catch((err) => {
-        console.log(err);
-      });
+    await axios.post("/api/globalChats", { globalMessage });
     setGlobalMessage({
       body: "",
       sentBy: "",
@@ -113,8 +88,11 @@ function GlobalChat(props) {
               </p>
             </div>
           </div>
-          <div className="globalMainChat" id={!open ? "emptyGlobalChat" : ""}>
-            {open && props.show ? (
+          <div
+            className="globalMainChat"
+            id={!props.show ? "emptyGlobalChat" : ""}
+          >
+            {props.show ? (
               <div className="globalChatExtra">
                 <div
                   className="globalMainChatHeading"
@@ -164,7 +142,7 @@ function GlobalChat(props) {
       {/* For Mobile */}
 
       <div className="phoneSize">
-        {!open || !props.show ? (
+        {!props.show ? (
           <div className="phoneGlobalChatBoxContainer">
             <p className="phoneGlobalChatBoxDescription">
               With this Global Chat you can chat with people all across the

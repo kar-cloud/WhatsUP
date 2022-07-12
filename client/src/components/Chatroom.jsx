@@ -6,7 +6,7 @@ import PrivateChat from "./PrivateChat";
 
 function Chatroom(props) {
   const [activeKey, setActiveKey] = useState("Global");
-  const [show, setShow] = useState(true);
+  const [show, setShow] = useState(false);
 
   function handleLogoutClick() {
     axios.get("/api/logout");
@@ -15,7 +15,7 @@ function Chatroom(props) {
     }, 400);
   }
 
-  function handleShow(socket) {
+  function handleShow() {
     setShow(true);
   }
 

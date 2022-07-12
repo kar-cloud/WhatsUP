@@ -45,15 +45,11 @@ function Login(props) {
         }
         if (response.data.loginVerified) {
           props.getResponseFromLogin(response.data.loginVerified);
-          props.currentWorkingUser(response.data.userActive);
         }
       })
       .catch((err) => {
-        console.log(err);
+        setErrorMessage("There is some error. Try again");
       });
-    setTimeout(function () {
-      window.location.reload();
-    }, 1550);
   }
 
   return (
