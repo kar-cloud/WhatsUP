@@ -9,16 +9,16 @@ function MyRequests(props) {
       nowFriend: request,
     };
     axios
-      .post("/api/addFriend", { friend })
+      .post("/api/friend/add", { friend })
       .then((response) => {
         console.log(response);
+        setTimeout(function () {
+          window.location.reload();
+        }, 500);
       })
       .catch((err) => {
         console.log(err);
       });
-    setTimeout(function () {
-      window.location.reload();
-    }, 500);
   }
 
   function rejectFriend(request) {
@@ -26,16 +26,16 @@ function MyRequests(props) {
       requestF: request,
     };
     axios
-      .post("/api/rejectFriend", { friend })
+      .post("/api/friend/reject", { friend })
       .then((response) => {
         console.log(response);
+        setTimeout(function () {
+          window.location.reload();
+        }, 500);
       })
       .catch((err) => {
         console.log(err);
       });
-    setTimeout(function () {
-      window.location.reload();
-    }, 500);
   }
 
   return (

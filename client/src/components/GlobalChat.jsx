@@ -14,8 +14,11 @@ function GlobalChat(props) {
   const [sock, setSock] = useState();
 
   async function getChats() {
+    const roomName = {
+      room: "global",
+    };
     await axios
-      .get("/api/globalChats")
+      .get("/api/chat/room/messages", { params: roomName })
       .then((response) => {
         if (response.data) {
           setGlobalMessages(response.data.messages);
@@ -55,7 +58,10 @@ function GlobalChat(props) {
     setGlobalMessages((prevMessages) => {
       return [...prevMessages, globalMessage];
     });
-    await axios.post("/api/globalChats", { globalMessage });
+    const roomID = {
+      roomName: "global",
+    };
+    await axios.post("/api/chat/message", { message: globalMessage, roomID });
     setGlobalMessage({
       body: "",
       sentBy: "",

@@ -35,7 +35,7 @@ function Login(props) {
       password: password,
     };
     axios
-      .post("/api/login", { userLoginData })
+      .post("/api/auth/login", { userLoginData })
       .then((response) => {
         if (response.data.verificationError) {
           setErrorMessage(response.data.verificationError);

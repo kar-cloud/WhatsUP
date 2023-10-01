@@ -51,7 +51,7 @@ function Register(props) {
       confirmPassWord: confirmPassword,
     };
     axios
-      .post("/api/register", { userData })
+      .post("/api/auth/register", { userData })
       .then((response) => {
         if (response.data.fieldEmptyError) {
           setErrorMessage(response.data.fieldEmptyError);

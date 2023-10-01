@@ -12,24 +12,13 @@ function App() {
   const [auth, setAuth] = useState(false);
   const [currentUser, setCurrentUser] = useState();
 
-  // to check if user is verified or not
-  if (window.location.pathname === "/") {
-    axios.get("/api/home").then((response) => {
-      if (response.data.authorizedMessage) {
-        if (auth === false) {
-          setAuth(true);
-        }
-      }
-      if (response.data.unauthorizedMessage) {
-        if (auth === true) {
-          setAuth(false);
-        }
-      }
-    });
-  }
-
-  if (window.location.pathname === "/chatroom") {
-    axios.get("/api/chatroom").then((response) => {
+  if (
+    window.location.pathname === "/" ||
+    window.location.pathname === "/login" ||
+    window.location.pathname === "/register" ||
+    window.location.pathname === "/chatroom"
+  ) {
+    axios.get("/api/auth/authenticate").then((response) => {
       if (response.data.authorizedMessage) {
         if (auth === false) {
           setAuth(true);
@@ -40,32 +29,6 @@ function App() {
         if (auth === true) {
           setAuth(false);
         }
-      }
-    });
-  }
-
-  if (window.location.pathname === "/login") {
-    axios.get("/api/login").then((response) => {
-      if (response.data.authorizedMessage) {
-        if (auth === false) {
-          setAuth(true);
-        }
-      }
-      if (response.data.unauthorizedMessage) {
-        if (auth === true) {
-          setAuth(false);
-        }
-      }
-    });
-  }
-
-  if (window.location.pathname === "/register") {
-    axios.get("/api/register").then((response) => {
-      if (response.data.authorizedMessage) {
-        setAuth(true);
-      }
-      if (response.data.unauthorizedMessage) {
-        setAuth(false);
       }
     });
   }

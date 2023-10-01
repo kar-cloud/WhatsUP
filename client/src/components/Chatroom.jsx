@@ -9,7 +9,7 @@ function Chatroom(props) {
   const [show, setShow] = useState(false);
 
   function handleLogoutClick() {
-    axios.get("/api/logout");
+    axios.post("/api/auth/logout");
     setTimeout(function () {
       window.location.reload();
     }, 400);

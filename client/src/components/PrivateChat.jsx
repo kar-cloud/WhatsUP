@@ -40,7 +40,7 @@ function PrivateChat(props) {
     };
     if (room) {
       axios
-        .post("/api/roomChats", { roomName })
+        .get("/api/chat/room/messages", { params: roomName })
         .then((response) => {
           if (response.data) {
             setMessagesFromRoom(response.data.messages);
@@ -56,7 +56,7 @@ function PrivateChat(props) {
 
   const getRequests = () => {
     axios
-      .get("/api/myRequests")
+      .get("/api/friend/user")
       .then((response) => {
         const data = response.data.recievedRequests;
         setRequestsPending([...data]);
@@ -68,7 +68,7 @@ function PrivateChat(props) {
 
   const getFriends = () => {
     axios
-      .get("/api/myFriends")
+      .get("/api/friend/user")
       .then((response) => {
         const data = response.data.friends;
         setFriends([...data]);
@@ -104,7 +104,7 @@ function PrivateChat(props) {
         usernameContact: usernameContact,
       };
       axios
-        .post("/api/sendFriendRequest", { userContact })
+        .post("/api/friend/sendRequest", { userContact })
         .then((response) => {
           if (response.data.requestError) {
             setFriendRequest(response.data.requestError);
@@ -139,7 +139,7 @@ function PrivateChat(props) {
       room: updatedRoomName,
     };
     axios
-      .post("/api/roomChats", { roomName })
+      .get("/api/chat/room/messages", { params: roomName })
       .then((response) => {
         if (response.data) {
           setMessagesFromRoom(response.data.messages);
@@ -177,7 +177,7 @@ function PrivateChat(props) {
     setMessagesFromRoom((prevMessages) => {
       return [...prevMessages, message];
     });
-    await axios.post("/api/roomChat", { message, roomID });
+    await axios.post("/api/chat/message", { message, roomID });
 
     setMessage({
       body: "",
