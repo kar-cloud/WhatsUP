@@ -1,3 +1,4 @@
+require("dotenv").config();
 const { app } = require("./app");
 const port = process.env.PORT || 8080;
 var http = require("http").Server(app);
@@ -15,7 +16,6 @@ io.on("connection", (socket) => {
     socket.join("global");
     socket.on("emitGlobalMessage", (data) => {
       const message = data;
-      console.log(socket.rooms);
       console.log(Array.from(socket.rooms));
       Array.from(socket.rooms)
         .filter((it) => it !== socket.id)
@@ -32,13 +32,6 @@ io.on("connection", (socket) => {
 
     let updatedRoomName = `${unique[0]}--with--${unique[1]}`; // 'username1--with--username2'
 
-    console.log(updatedRoomName);
-    Array.from(socket.rooms)
-      .filter((it) => it !== socket.id)
-      .forEach((id) => {
-        socket.leave(id);
-        socket.removeAllListeners("emitMessage");
-      });
     socket.join(updatedRoomName);
     socket.emit("your room", updatedRoomName);
     socket.on("emitMessage", (data) => {

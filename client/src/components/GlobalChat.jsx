@@ -48,7 +48,6 @@ function GlobalChat(props) {
       setGlobalMessages((prevMessages) => {
         return [...prevMessages, msg];
       });
-      getChats();
     });
   }
 

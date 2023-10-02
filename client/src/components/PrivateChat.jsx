@@ -153,6 +153,7 @@ function PrivateChat(props) {
     whichFriendToChat(friend);
     const socket = socketIOClient(ENDPOINT);
     setSock(socket);
+    console.log(props)
     socket.emit("join", `${friend}--with--${props.currentUser}`);
     socket.on("your room", (room) => {
       getMessages(room);
