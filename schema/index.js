@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
-const userDBPath = `mongodb+srv://${process.env.MONGODB_AUTH1}@cluster0.5rsnb.mongodb.net/userDB?retryWrites=true&w=majority`;
-const roomDBPath = `mongodb+srv://${process.env.MONGODB_AUTH2}@cluster0.7kkhg.mongodb.net/roomDB?retryWrites=true&w=majority`;
+const userDBPath = `mongodb+srv://${process.env.MONGODB_AUTH1}@cluster0.dth3gfm.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
+const roomDBPath = `mongodb+srv://${process.env.MONGODB_AUTH2}@cluster0.czxk2z3.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 const userDB = mongoose.createConnection(userDBPath, {
   useNewUrlParser: true,
